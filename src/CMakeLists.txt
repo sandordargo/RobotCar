@@ -1,5 +1,7 @@
 set(BINARY ${CMAKE_PROJECT_NAME}_src)
 
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()  # Prepares the CMakeList.txt for Conan.
 
 
 include_directories(../include)
@@ -10,3 +12,4 @@ set(SOURCES ${SOURCES})
 
 add_executable(Robotcar_src ${SOURCES})
 
+target_link_libraries(Robotcar_src PUBLIC ${CONAN_LIBS})
