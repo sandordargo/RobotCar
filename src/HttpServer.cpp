@@ -1,4 +1,5 @@
 #include "HttpServer.h"
+#include "Commands.h"
 
 #include <cpprest/http_msg.h>
 #include <cpprest/json.h>
@@ -40,6 +41,25 @@ void Server::handlePost(web::http::http_request request) {
     .wait();
 
   Direction direction = extractDirection(body);
+
+  switch (direction) {
+    case Direction::Left: 
+      std::cout << "left\n";
+      break;
+    case Direction::Right: 
+      std::cout << "right\n";
+      break;
+    case Direction::Forward: 
+      std::cout << "forward\n";
+      Commands::goBackward();
+      break;
+    case Direction::Backward: 
+      std::cout << "backward\n";
+      Commands::goBackward();
+      break;
+
+  };
+
   request.reply(web::http::status_codes::OK); //send the reply as a json
 }
 
