@@ -11,5 +11,6 @@ file(GLOB SOURCES *.cpp)
 set(SOURCES ${SOURCES})
 
 add_executable(Robotcar_src ${SOURCES})
+add_library(Robotcar_src_lib STATIC ${SOURCES})
 
 target_link_libraries(Robotcar_src PUBLIC ${CONAN_LIBS})

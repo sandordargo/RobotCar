@@ -1,9 +1,7 @@
 #include "HttpServer.h"
 
-#include <cpprest/http_listener.h>
 #include <cpprest/http_msg.h>
 #include <cpprest/json.h>
-#include <cpprest/uri.h>
 
 #include <exception>
 
@@ -11,7 +9,7 @@ namespace HttpServer {
 // action, like stop go?
 // duration?
 
-Direction extractDirection(web::json::value body) {
+Direction Server::extractDirection(web::json::value body) {
   if (body.has_field("direction")) {
     auto directionInput = body.at("direction").as_string();
     std::cout << directionInput << '\n';
@@ -30,7 +28,7 @@ Direction extractDirection(web::json::value body) {
   throw std::domain_error("bad body");
 }
 
-void handle_post(web::http::http_request request) {
+void Server::handlePost(web::http::http_request request) {
   std::cout << "request received\n";
   std::cout << request.method() << '\n';
   web::json::value body;
@@ -45,22 +43,44 @@ void handle_post(web::http::http_request request) {
   request.reply(web::http::status_codes::OK); //send the reply as a json
 }
 
-void run(const std::string& uri) {
-  web::uri address(uri);
-  web::http::experimental::listener::http_listener listener(address);
+void Server::handleGet(web::http::http_request request) {
+  std::cout << "request received\n";
+  std::cout << request.method() << '\n';
+  request.reply(web::http::status_codes::OK); //send the reply as a json
+}
 
-  listener.support(web::http::methods::POST, handle_post);
 
-  try {
-    listener
+void Server::run() {
+  runImplementation(std::nullopt, std::nullopt);
+}
+
+void Server::run(std::chrono::duration<int> forNSeconds) {
+  auto startTime = std::chrono::system_clock::now();
+  runImplementation(startTime, forNSeconds);
+}
+
+void Server::runImplementation(std::optional<std::chrono::time_point<std::chrono::system_clock>> startTime, std::optional<std::chrono::duration<int>> duration) {
+  
+try {
+    m_listener
       .open()
-      .then([&listener] () { std::cout << "listening...\n"; })
+      .then([this] () { std::cout << "listening...\n"; })
       .wait();
-      while(true);
+    while(hasRunDurationPassed(startTime, duration) || isEndlesslyRunning(startTime, duration));
 
   } catch (...) {
     std::cout << "some error happened, bye!\n";
   }
+
+}
+
+bool Server::hasRunDurationPassed(std::optional<std::chrono::time_point<std::chrono::system_clock>> startTime, std::optional<std::chrono::duration<int>> duration) const {
+  return startTime && (std::chrono::duration_cast<std::chrono::seconds>( std::chrono::system_clock::now() - startTime.value()) <= duration.value());
+}
+
+bool Server::isEndlesslyRunning(std::optional<std::chrono::time_point<std::chrono::system_clock>> startTime, std::optional<std::chrono::duration<int>> duration) const {
+  return !startTime && !duration;
+
 }
 
 }

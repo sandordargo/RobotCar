@@ -9,6 +9,7 @@ conan_basic_setup()  # Prepares the CMakeList.txt for Conan.
 include_directories(../include)
 
 add_executable(${BINARY} ${TEST_SOURCES})
+target_link_libraries(${BINARY} PUBLIC Robotcar_src_lib)
 target_link_libraries(${BINARY} PUBLIC ${CONAN_LIBS})
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})
